@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human-Like LinkedIn Comment Tool</title>
+    <script src="https://cloudflare.com"></script>
+    <style>
+        :root { --linkedin-blue: #0a66c2; --bg-gray: #f3f2ef; }
+        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-gray); padding: 20px; color: #333; }
+        .card { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h2 { color: var(--linkedin-blue); margin-top: 0; border-bottom: 2px solid var(--bg-gray); padding-bottom: 10px; }
+        label { display: block; font-weight: 600; margin: 15px 0 5px; font-size: 14px; }
+        input[type="file"], textarea { width: 100%; padding: 12px; border: 1px solid #cdcfd2; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        textarea { resize: vertical; min-height: 120px; background-color: #fafafb; }
+        button { background-color: var(--linkedin-blue); color: white; border: none; padding: 14px 24px; border-radius: 24px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px; transition: 0.3s; font-size: 16px; }
+        button:hover { background-color: #004182; }
+        .result-area { margin-top: 25px; padding: 20px; background: #e1f0ff; border-radius: 8px; display: none; border: 1px solid #b3d7ff; }
+        .prompt-text { font-family: "Courier New", Courier, monospace; font-size: 13px; white-space: pre-wrap; background: white; padding: 15px; border-radius: 4px; border: 1px solid #ccd9e5; max-height: 300px; overflow-y: auto; }
+        .status { font-size: 12px; color: green; font-weight: bold; margin-top: 5px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>LinkedIn Comment Generator</h2>
+    
+    <label>1. Upload your LinkedIn Profile PDF</label>
+    <input type="file" id="pdfUpload" accept="application/pdf">
+    <div id="status" class="status">✓ Profile Loaded Successfully!</div>
+
+    <label>2. Paste the LinkedIn Post Text</label>
+    <textarea id="postContent" placeholder="Paste the post you want to comment on here..."></textarea>
+
+    <button onclick="generateHumanPrompt()">Generate AI Prompt</button>
+
+    <div id="resultArea" class="result-area">
+        <label>Copy & Paste this into Kimi/ChatGPT:</label>
+        <div id="outputPrompt" class="prompt-text"></div>
+        <button onclick="copyToClipboard()" style="background: #28a745; margin-top: 10px;">Copy Prompt Text</button>
+    </div>
+</div>
+
+<script>
+    let profileData = "";
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cloudflare.com';
+
+    document.getElementById('pdfUpload').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async function() {
+            const typedarray = new Uint8Array(this.result);
+            const pdf = await pdfjsLib.getDocument(typedarray).promise;
+            let fullText = "";
+            
+            for (let i = 1; i <= Math.min(pdf.numPages, 3); i++) { // Read first 3 pages
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                fullText += content.items.map(item => item.str).join(" ");
+            }
+            profileData = fullText.substring(0, 3000); // Limit context
+            document.getElementById('status').style.display = 'block';
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    function generateHumanPrompt() {
+        const postText = document.getElementById('postContent').value;
+        if (!profileData || !postText) {
+            alert("Please upload PDF and paste the post first!");
+            return;
+        }
+
+        const finalPrompt = `Write a LinkedIn comment from my POV. Use standard professional English.
+
+[MY PROFESSIONAL BACKGROUND]
+${profileData}
+
+[LINKEDIN POST TO COMMENT ON]
+"${postText}"
+
+STRICT INSTRUCTIONS FOR THE COMMENT:
+1. NO AI CLICHÉS: Do NOT use "Insightful," "Game-changer," "Thanks for sharing," or "Deep dive."
+2. BE NATURAL: Write like a real person having a conversation. Keep it punchy and direct.
+3. PERSONAL CONNECTION: Reference one specific thing from the post and tie it to my experience.
+4. LENGTH: Maximum 2-3 short sentences. 
+5. TONE: Professional yet slightly casual (standard English).
+6. POV: Use "I" or "In my experience." 
+
+Output ONLY the comment text.`;
+
+        document.getElementById('outputPrompt').innerText = finalPrompt;
+        document.getElementById('resultArea').style.display = 'block';
+    }
+
+    function copyToClipboard() {
+        const text = document.getElementById('outputPrompt').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Prompt copied! Now paste it into Kimi AI.");
+        });
+    }
+</script>
+
+</body>
+</html>
