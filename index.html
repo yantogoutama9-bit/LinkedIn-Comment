@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkedIn Comment Generator - AI Browser</title>
+    <title>LinkedIn Comment Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,83 +21,43 @@
     </script>
     <style>
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .glass-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
-        .drop-zone { border: 2px dashed #cbd5e1; transition: all 0.3s; }
+        .drop-zone { border: 2px dashed #cbd5e1; transition: all 0.3s; cursor: pointer; }
         .drop-zone:hover, .drop-zone.dragover { border-color: #0a66c2; background: #f0f7ff; }
         .drop-zone.has-file { border-color: #10b981; background: #ecfdf5; }
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #0a66c2; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
-        .progress-bar { height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #0a66c2, #7c3aed); transition: width 0.3s; }
         .comment-card { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-left: 4px solid #0a66c2; }
-        .model-badge { background: linear-gradient(135deg, #0a66c2, #7c3aed); }
-        .typing-cursor::after { content: '|'; animation: blink 1s infinite; }
-        @keyframes blink { 0%,50% { opacity:1; } 51%,100% { opacity:0; } }
+        .keyword-tag { background: #e0e7ff; color: #3730a3; font-size: 10px; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans">
-    <!-- Header -->
     <header class="gradient-bg text-white py-6 shadow-lg">
         <div class="max-w-4xl mx-auto px-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                        <i class="fab fa-linkedin text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold">LinkedIn Comment Generator</h1>
-                        <p class="text-blue-100 text-sm">AI runs entirely in your browser — 100% private</p>
-                    </div>
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fab fa-linkedin text-2xl"></i>
                 </div>
-                <div id="modelStatus" class="hidden md:flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
-                    <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" id="statusDot"></div>
-                    <span class="text-xs font-medium" id="statusText">AI Model: Loading...</span>
+                <div>
+                    <h1 class="text-2xl font-bold">LinkedIn Comment Generator</h1>
+                    <p class="text-blue-100 text-sm">Dynamic AI — Komentar berubah sesuai konten post</p>
                 </div>
             </div>
         </div>
     </header>
 
     <main class="max-w-4xl mx-auto px-6 py-8">
-        <!-- Model Info Banner -->
         <div class="bg-white rounded-2xl p-4 mb-6 shadow-sm border border-slate-200 flex items-center gap-4">
-            <div class="model-badge text-white px-3 py-1.5 rounded-lg text-xs font-bold">
-                <i class="fas fa-brain mr-1"></i>SmolLM2-360M
+            <div class="bg-gradient-to-r from-orange-400 to-pink-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">
+                <i class="fas fa-magic mr-1"></i>Smart Engine
             </div>
             <div class="flex-1">
-                <p class="text-sm text-slate-600">Model AI berjalan langsung di browser Anda. Tidak ada data yang dikirim ke server.</p>
-            </div>
-            <div class="text-xs text-slate-400 text-right">
-                <div id="modelSize">~360MB download</div>
-                <div id="loadProgress" class="hidden mt-1">
-                    <div class="progress-bar w-32">
-                        <div class="progress-fill" id="progressBar" style="width: 0%"></div>
-                    </div>
-                    <div class="text-xs text-slate-500 mt-1" id="progressText">0%</div>
-                </div>
+                <p class="text-sm text-slate-600">Sistem menganalisis keyword dari post Anda dan memilih template yang paling relevan.</p>
             </div>
         </div>
 
-        <!-- Intro -->
-        <div class="glass-card rounded-2xl p-6 mb-8 shadow-sm">
-            <div class="flex items-start gap-4">
-                <div class="w-10 h-10 bg-linkedin-light rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <i class="fas fa-lightbulb text-linkedin-blue"></i>
-                </div>
-                <div>
-                    <h2 class="text-lg font-semibold text-slate-800 mb-2">How it works</h2>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        Upload post LinkedIn dan profil PDF Anda. AI akan menganalisis konten post dan memahami 
-                        background profesional Anda untuk menghasilkan komentar yang autentik dan kontekstual.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Upload Section -->
         <div class="grid md:grid-cols-2 gap-6 mb-8">
-            <!-- Post Input -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -106,7 +66,7 @@
                     <h3 class="font-semibold text-slate-800">1. LinkedIn Post</h3>
                     <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">Required</span>
                 </div>
-
+                
                 <div class="flex gap-2 mb-4 bg-slate-100 p-1 rounded-lg">
                     <button onclick="switchTab('text')" id="tab-text" class="flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all bg-white text-slate-800 shadow-sm">
                         <i class="fas fa-keyboard mr-1"></i> Text
@@ -114,12 +74,8 @@
                     <button onclick="switchTab('screenshot')" id="tab-screenshot" class="flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700">
                         <i class="fas fa-image mr-1"></i> Screenshot
                     </button>
-                    <button onclick="switchTab('link')" id="tab-link" class="flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700">
-                        <i class="fas fa-link mr-1"></i> Link
-                    </button>
                 </div>
 
-                <!-- Text Input -->
                 <div id="input-text" class="block">
                     <textarea id="postText" placeholder="Paste the LinkedIn post text here..."
                         class="w-full h-40 p-4 border border-slate-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-linkedin-blue text-sm leading-relaxed"></textarea>
@@ -131,86 +87,79 @@
                     </div>
                 </div>
 
-                <!-- Screenshot Input -->
                 <div id="input-screenshot" class="hidden">
-                    <div id="dropZoneScreenshot" class="drop-zone rounded-xl p-8 text-center cursor-pointer"
+                    <div id="dropZoneScreenshot" class="drop-zone rounded-xl p-8 text-center"
                         onclick="document.getElementById('screenshotInput').click()"
                         ondrop="handleDrop(event, 'screenshot')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
                         <input type="file" id="screenshotInput" accept="image/*" class="hidden" onchange="handleFileSelect(event, 'screenshot')">
                         <div id="screenshotPreview" class="hidden mb-4">
                             <img id="screenshotImg" class="max-h-48 mx-auto rounded-lg shadow-md" alt="Preview">
+                            <button onclick="event.stopPropagation(); removeScreenshot();" class="mt-2 text-xs text-red-500 hover:text-red-700">
+                                <i class="fas fa-times mr-1"></i>Remove image
+                            </button>
                         </div>
                         <div id="screenshotPlaceholder">
                             <i class="fas fa-cloud-upload-alt text-4xl text-slate-300 mb-3"></i>
-                            <p class="text-sm text-slate-500 font-medium">Drop screenshot here or click to browse</p>
-                            <p class="text-xs text-slate-400 mt-1">PNG, JPG up to 10MB</p>
+                            <p class="text-sm text-slate-500 font-medium">Click to upload screenshot</p>
+                            <p class="text-xs text-slate-400 mt-1">or drag & drop here (PNG, JPG)</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Link Input -->
-                <div id="input-link" class="hidden">
-                    <div class="relative">
-                        <i class="fab fa-linkedin absolute left-4 top-1/2 -translate-y-1/2 text-linkedin-blue"></i>
-                        <input type="url" id="postLink" placeholder="https://www.linkedin.com/posts/..."
-                            class="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-linkedin-blue text-sm">
-                    </div>
-                    <p class="text-xs text-slate-400 mt-2 ml-1"><i class="fas fa-info-circle mr-1"></i>Paste the full LinkedIn post URL</p>
-                </div>
+                <div id="detectedKeywords" class="hidden mt-3 flex flex-wrap gap-2"></div>
             </div>
 
-            <!-- Profile Input -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-8 h-8 bg-linkedin-light rounded-lg flex items-center justify-center">
                         <i class="fas fa-user-tie text-linkedin-blue text-sm"></i>
                     </div>
-                    <h3 class="font-semibold text-slate-800">2. Your Profile PDF</h3>
+                    <h3 class="font-semibold text-slate-800">2. Your Profile Info</h3>
                     <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">Required</span>
                 </div>
 
-                <div id="dropZoneProfile" class="drop-zone rounded-xl p-8 text-center cursor-pointer mb-4"
+                <div id="dropZoneProfile" class="drop-zone rounded-xl p-6 text-center mb-4"
                     onclick="document.getElementById('profileInput').click()"
                     ondrop="handleDrop(event, 'profile')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
                     <input type="file" id="profileInput" accept=".pdf" class="hidden" onchange="handleFileSelect(event, 'profile')">
-                    <div id="profileInfo" class="hidden mb-2">
-                        <div class="flex items-center justify-center gap-2 text-green-600">
+                    <div id="profileInfo" class="hidden">
+                        <div class="flex items-center justify-center gap-2 text-green-600 mb-2">
                             <i class="fas fa-check-circle text-xl"></i>
                             <span class="font-medium text-sm" id="profileFileName"></span>
                         </div>
+                        <button onclick="event.stopPropagation(); removeProfile();" class="text-xs text-red-500 hover:text-red-700">
+                            <i class="fas fa-times mr-1"></i>Remove file
+                        </button>
                     </div>
                     <div id="profilePlaceholder">
                         <i class="fas fa-file-pdf text-4xl text-slate-300 mb-3"></i>
-                        <p class="text-sm text-slate-500 font-medium">Drop your LinkedIn Profile PDF here</p>
-                        <p class="text-xs text-slate-400 mt-1">or click to browse (PDF only)</p>
+                        <p class="text-sm text-slate-500 font-medium">Click to upload Profile PDF</p>
+                        <p class="text-xs text-slate-400 mt-1">or drag & drop here</p>
                     </div>
                 </div>
 
-                <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
-                    <p class="text-xs text-slate-500 flex items-start gap-2">
-                        <i class="fas fa-question-circle text-linkedin-blue mt-0.5"></i>
-                        <span><strong>How to get your Profile PDF:</strong><br>Go to your LinkedIn profile → Click "More" → Select "Save to PDF"</span>
-                    </p>
+                <div class="border-t border-slate-100 pt-4">
+                    <p class="text-xs text-slate-400 mb-2">Or paste your profile text manually:</p>
+                    <textarea id="profileText" placeholder="e.g., HR & Legal Consultant, System Builder, ISLA Framework, helping SMEs scale..."
+                        class="w-full h-24 p-3 border border-slate-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-linkedin-blue text-xs leading-relaxed"></textarea>
                 </div>
             </div>
         </div>
 
-        <!-- Generate Button -->
         <div class="text-center mb-8">
             <button id="generateBtn" onclick="generateComment()"
                 class="bg-linkedin-blue hover:bg-linkedin-dark text-white font-semibold py-4 px-10 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 mx-auto">
                 <i class="fas fa-magic" id="btnIcon"></i>
                 <span id="btnText">Generate Comment</span>
             </button>
-            <p class="text-xs text-slate-400 mt-3" id="statusText">Please upload both the post and your profile PDF</p>
+            <p class="text-xs text-slate-400 mt-3" id="statusText">Please fill in the post and your profile info</p>
         </div>
 
-        <!-- Results Section -->
         <div id="resultsSection" class="hidden">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
                     <i class="fas fa-sparkles text-yellow-500"></i>
-                    AI Generated Comments
+                    Generated Comments
                 </h3>
                 <button onclick="regenerateComment()" class="text-sm text-linkedin-blue hover:text-linkedin-dark font-medium px-3 py-1.5 rounded-lg hover:bg-linkedin-light transition-colors">
                     <i class="fas fa-redo mr-1"></i>Regenerate
@@ -224,119 +173,136 @@
         <div class="max-w-4xl mx-auto px-6 text-center">
             <p class="text-sm text-slate-400">
                 <i class="fas fa-shield-alt mr-1"></i>
-                100% Private — AI runs locally in your browser using Transformers.js
+                100% Client-side — No data sent to any server
             </p>
         </div>
     </footer>
 
-    <!-- Transformers.js Module -->
-    <script type="module">
-        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0';
+    <script>
+        let currentTab = 'text';
+        let postData = { type: null, content: null, text: '' };
+        let profileData = { name: null, text: null };
+        let generatedComments = [];
 
-        // Disable local model checks for CDN usage
-        env.allowLocalModels = false;
-        env.useBrowserCache = true;
-
-        // Global state
-        window.aiPipeline = null;
-        window.currentTab = 'text';
-        window.postData = { type: null, content: null };
-        window.profileData = { name: null, text: null };
-        window.generatedComments = [];
-
-        const MODEL_ID = 'HuggingFaceTB/SmolLM2-360M-Instruct';
-
-        // Load AI Model on page load
-        async function loadAIModel() {
-            const statusDot = document.getElementById('statusDot');
-            const statusText = document.getElementById('statusText');
-            const progressBar = document.getElementById('progressBar');
-            const progressText = document.getElementById('progressText');
-            const loadProgress = document.getElementById('loadProgress');
-
-            loadProgress.classList.remove('hidden');
-
-            try {
-                window.aiPipeline = await pipeline('text-generation', MODEL_ID, {
-                    dtype: 'q8',
-                    device: 'wasm',
-                    progress_callback: (info) => {
-                        if (info.status === 'progress') {
-                            const percent = Math.round(info.progress);
-                            progressBar.style.width = percent + '%';
-                            progressText.textContent = percent + '%';
-                        } else if (info.status === 'done') {
-                            progressText.textContent = 'Ready!';
-                        }
-                    }
-                });
-
-                statusDot.classList.remove('bg-yellow-400', 'animate-pulse');
-                statusDot.classList.add('bg-green-400');
-                statusText.textContent = 'AI Model: Ready';
-                document.getElementById('modelSize').textContent = 'Model loaded';
-
-            } catch (error) {
-                console.error('Model loading failed:', error);
-                statusDot.classList.remove('bg-yellow-400');
-                statusDot.classList.add('bg-red-400');
-                statusText.textContent = 'AI Model: Failed';
-                progressText.textContent = 'Error loading model';
+        const TEMPLATES = {
+            hiring: {
+                keywords: ['hiring', 'join our team', 'we are looking', 'open position', 'job opening', 'vacancy', 'recruit', 'talent', 'career opportunity', 'now hiring'],
+                templates: [
+                    "This is exactly the kind of opportunity that excites me. The role seems perfect for someone who brings both passion and expertise. If I were in that space, I'd apply in a heartbeat! Best of luck to everyone applying.",
+                    "Great to see the team expanding! This position sounds like a fantastic opportunity for someone passionate about this field. From my experience, I know how rare it is to find a role that balances growth and impact so well.",
+                    "This role caught my attention immediately. The company is clearly investing in the right areas, and that's a smart move. For anyone considering this position — my advice: highlight your experience with relevant systems. That's what will set you apart."
+                ]
+            },
+            achievement: {
+                keywords: ['proud to announce', 'excited to share', 'milestone', 'honored', 'thrilled', 'delighted', 'celebrate', 'achievement', 'award', 'promotion', 'new role', 'congratulations'],
+                templates: [
+                    "What an incredible milestone! Your journey to this point has clearly been defined by dedication, and this achievement is so well-deserved. From my own experience, I know how much hard work this takes. Congratulations!",
+                    "This is fantastic news! Seeing your growth has been inspiring. The way you've approached your work with such consistency is exactly why this success makes perfect sense. Here's to the next chapter!",
+                    "Huge congratulations on this achievement! Having worked in similar spaces, I can appreciate the effort behind this. Your focus has clearly paid off, and I'm excited to see where this takes you next. Well done!"
+                ]
+            },
+            insight: {
+                keywords: ['insight', 'lesson learned', 'key takeaway', 'what I learned', 'reflection', 'perspective', 'observation', 'trend', 'analysis', 'research', 'study', 'data shows'],
+                templates: [
+                    "This is a powerful insight. Your point really resonates with what I've observed in my field. One thing I'd add: execution matters more than strategy alone. It's fascinating how this space continues to evolve, and posts like this help us all stay ahead.",
+                    "Thank you for sharing this perspective. The connection you drew is something I hadn't fully considered before. From my work, I've seen similar patterns where small details make big differences. This really adds value to the conversation.",
+                    "Brilliant analysis. Your breakdown highlights exactly why the industry is shifting in this direction. I'd be curious to hear your thoughts on how this scales. This is the kind of content that makes LinkedIn genuinely valuable."
+                ]
+            },
+            question: {
+                keywords: ['what do you think', 'would love to hear', 'your thoughts', 'poll', 'survey', 'question', 'curious', 'wondering', 'asking', 'opinion', 'debate', 'discuss'],
+                templates: [
+                    "Great question! From my experience, I'd say it depends on context. The key factor that most people overlook is consistency. I'd love to hear what others in the community think about this perspective.",
+                    "This is such a timely question. Having dealt with similar challenges, my take is that execution matters most. However, I think context matters significantly here — every situation is unique. What's your experience been?",
+                    "Love that you're sparking this conversation. If I had to choose, I'd lean toward practical experience, and here's why: it backs up the theory. That said, I've seen cases where the opposite approach worked surprisingly well. Context is everything!"
+                ]
+            },
+            tips: {
+                keywords: ['tips', 'how to', 'guide', 'best practice', 'strategy', 'hack', 'advice', 'recommendation', 'pro tip', 'framework', 'methodology'],
+                templates: [
+                    "This is gold! The tip you shared is something I wish I knew earlier in my career. From my experience building systems, I'd add one more: consistency. These small adjustments compound into massive results over time.",
+                    "Solid advice. Your tips are spot-on, especially the part about systems. Having implemented similar strategies, I can confirm that this works in practice. For anyone reading this: don't skip the follow-up step — it's a game-changer.",
+                    "Thank you for breaking this down so clearly. The approach you outlined is brilliant in its simplicity. One thing I've learned: patience pays off. This post is definitely getting saved for future reference!"
+                ]
+            },
+            motivation: {
+                keywords: ['never give up', 'keep going', 'mindset', 'resilience', 'grit', 'perseverance', 'failure', 'success story', 'journey', 'overcome', 'challenge', 'struggle'],
+                templates: [
+                    "Thank you for sharing this so vulnerably. Your journey is exactly the kind of story that reminds us why we do what we do. From my own path, I know how lonely those tough moments can feel. Your courage to share this will inspire many.",
+                    "This hit home. The way you reframed your challenges shows incredible growth mindset. Having faced similar obstacles in my career, I can relate to every word. The lesson about patience is something I'll carry with me. Thank you for this.",
+                    "Stories like yours are why I love this platform. Your transparency about the struggle while building something meaningful is refreshing. Too often we only see the highlight reel. Your reminder that failure is just learning is exactly what someone needed to hear today."
+                ]
+            },
+            industry_news: {
+                keywords: ['breaking', 'announcement', 'launch', 'new feature', 'update', 'partnership', 'acquisition', 'merger', 'funding', 'investment', 'market', 'industry'],
+                templates: [
+                    "This is significant news for the industry. The announcement signals a clear shift toward digital transformation. From my perspective, this will likely impact operations in ways we haven't fully grasped yet. Exciting times ahead!",
+                    "Big move! This reflects the growing importance of innovation in our field. Having watched this space closely, I believe the real story here is about market consolidation. This could reshape how we think about strategy over the next few years.",
+                    "Fascinating development. The announcement raises interesting questions about scalability. In my experience, transitions like this often reveal hidden opportunities. I'm particularly curious about the long-term implications. What are your thoughts?"
+                ]
+            },
+            general: {
+                keywords: [],
+                templates: [
+                    "Thank you for sharing this. Your perspective adds real value to this conversation. From my experience, I've found that consistency beats intensity. Looking forward to seeing more thoughts from the community on this.",
+                    "This is a thoughtful take. I appreciate how you highlighted the details — that's often overlooked in our field. My experience has shown that execution matters more than perfect planning. Would love to explore this further with you.",
+                    "Well said. The way you connected the dots really resonates with the work I've been doing. I particularly agree with your point about systems. This is exactly the kind of discourse that pushes our field forward."
+                ]
             }
-        }
+        };
 
-        // Start loading model immediately
-        loadAIModel();
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCharCount();
+            document.getElementById('postText').addEventListener('input', () => {
+                updateCharCount();
+                detectKeywords();
+                validateInputs();
+            });
+            document.getElementById('profileText').addEventListener('input', validateInputs);
+            validateInputs();
+        });
 
-        // Expose functions to global scope for onclick handlers
-        window.switchTab = function(tab) {
-            window.currentTab = tab;
-            ['text', 'screenshot', 'link'].forEach(t => {
-                document.getElementById(`tab-${t}`).className = t === tab 
-                    ? 'flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all bg-white text-slate-800 shadow-sm'
-                    : 'flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700';
-                document.getElementById(`input-${t}`).classList.toggle('hidden', t !== tab);
+        function switchTab(tab) {
+            currentTab = tab;
+            ['text', 'screenshot'].forEach(t => {
+                const btn = document.getElementById('tab-' + t);
+                const input = document.getElementById('input-' + t);
+                if (t === tab) {
+                    btn.className = 'flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all bg-white text-slate-800 shadow-sm';
+                    input.classList.remove('hidden');
+                } else {
+                    btn.className = 'flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700';
+                    input.classList.add('hidden');
+                }
             });
             validateInputs();
-        };
+        }
 
-        window.updateCharCount = function() {
-            const count = document.getElementById('postText').value.length;
-            document.getElementById('charCount').textContent = count + ' characters';
-        };
-
-        window.clearPost = function() {
-            document.getElementById('postText').value = '';
-            window.updateCharCount();
-            window.postData = { type: null, content: null };
-            validateInputs();
-        };
-
-        window.handleDragOver = function(e) {
+        function handleDragOver(e) {
             e.preventDefault();
             e.currentTarget.classList.add('dragover');
-        };
+        }
 
-        window.handleDragLeave = function(e) {
+        function handleDragLeave(e) {
             e.currentTarget.classList.remove('dragover');
-        };
+        }
 
-        window.handleDrop = function(e, type) {
+        function handleDrop(e, type) {
             e.preventDefault();
             e.currentTarget.classList.remove('dragover');
             const files = e.dataTransfer.files;
             if (files.length > 0) processFile(files[0], type);
-        };
+        }
 
-        window.handleFileSelect = function(e, type) {
+        function handleFileSelect(e, type) {
             const files = e.target.files;
             if (files.length > 0) processFile(files[0], type);
-        };
+        }
 
-        async function processFile(file, type) {
+        function processFile(file, type) {
             if (type === 'screenshot') {
                 if (!file.type.startsWith('image/')) {
-                    showToast('Please upload an image file', 'error');
+                    showToast('Please upload an image file (PNG/JPG)', 'error');
                     return;
                 }
                 const reader = new FileReader();
@@ -345,9 +311,11 @@
                     document.getElementById('screenshotPreview').classList.remove('hidden');
                     document.getElementById('screenshotPlaceholder').classList.add('hidden');
                     document.getElementById('dropZoneScreenshot').classList.add('has-file');
-                    window.postData = { type: 'screenshot', content: file.name };
+                    postData = { type: 'screenshot', content: file.name, text: '[Image: ' + file.name + ']' };
                     validateInputs();
+                    showToast('Screenshot uploaded!', 'success');
                 };
+                reader.onerror = () => showToast('Failed to read image', 'error');
                 reader.readAsDataURL(file);
             } else if (type === 'profile') {
                 if (file.type !== 'application/pdf') {
@@ -358,291 +326,385 @@
                 document.getElementById('profileInfo').classList.remove('hidden');
                 document.getElementById('profilePlaceholder').classList.add('hidden');
                 document.getElementById('dropZoneProfile').classList.add('has-file');
-
-                // Extract text from PDF using simple text extraction
-                const text = await extractPDFText(file);
-                window.profileData = { name: file.name, text: text };
-                validateInputs();
+                
+                extractPDFText(file).then(text => {
+                    profileData = { name: file.name, text: text || file.name.replace('.pdf', '') };
+                    validateInputs();
+                    showToast('Profile PDF uploaded!', 'success');
+                }).catch(err => {
+                    console.error('PDF error:', err);
+                    profileData = { name: file.name, text: file.name.replace('.pdf', '').replace(/[_-]/g, ' ') };
+                    validateInputs();
+                });
             }
         }
 
         async function extractPDFText(file) {
-            // Simple PDF text extraction using array buffer
-            const arrayBuffer = await file.arrayBuffer();
-            const text = new TextDecoder('utf-8').decode(arrayBuffer);
-            // Extract readable text between stream markers
-            const streams = text.match(/stream?
-([\s\S]*?)?
-endstream/g);
-            if (streams) {
-                let extracted = '';
-                streams.forEach(stream => {
-                    const content = stream.replace(/stream?
-/, '').replace(/?
-endstream/, '');
-                    // Try to extract text content
-                    const textMatches = content.match(/\(([^)]+)\)/g);
-                    if (textMatches) {
-                        extracted += textMatches.map(m => m.slice(1, -1)).join(' ') + ' ';
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const text = new TextDecoder('utf-8').decode(e.target.result);
+                        const streams = text.match(/stream[\r\n]+([\s\S]*?)[\r\n]*endstream/g);
+                        if (streams) {
+                            let extracted = '';
+                            streams.forEach(stream => {
+                                const content = stream.replace(/stream[\r\n]+/, '').replace(/[\r\n]*endstream/, '');
+                                const textMatches = content.match(/\(([^)]+)\)/g);
+                                if (textMatches) {
+                                    extracted += textMatches.map(m => m.slice(1, -1)).join(' ') + ' ';
+                                }
+                            });
+                            if (extracted.length > 50) {
+                                resolve(extracted.substring(0, 800));
+                                return;
+                            }
+                        }
+                        const cleanText = text.replace(/[^\x20-\x7E\n]/g, ' ').replace(/\s+/g, ' ').trim();
+                        if (cleanText.length > 100) {
+                            resolve(cleanText.substring(0, 800));
+                            return;
+                        }
+                        resolve(null);
+                    } catch (err) {
+                        reject(err);
                     }
-                });
-                if (extracted.length > 50) return extracted;
-            }
-            // Fallback: return filename as minimal profile info
-            return file.name.replace('.pdf', '').replace(/[_-]/g, ' ');
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
         }
 
-        window.validateInputs = function() {
-            let isValid = false;
+        function removeScreenshot() {
+            document.getElementById('screenshotInput').value = '';
+            document.getElementById('screenshotPreview').classList.add('hidden');
+            document.getElementById('screenshotPlaceholder').classList.remove('hidden');
+            document.getElementById('dropZoneScreenshot').classList.remove('has-file');
+            postData = { type: null, content: null, text: '' };
+            validateInputs();
+        }
 
-            if (window.currentTab === 'text') {
-                isValid = document.getElementById('postText').value.trim().length > 10;
-            } else if (window.currentTab === 'screenshot') {
-                isValid = window.postData.type === 'screenshot';
-            } else if (window.currentTab === 'link') {
-                isValid = document.getElementById('postLink').value.trim().includes('linkedin.com');
+        function removeProfile() {
+            document.getElementById('profileInput').value = '';
+            document.getElementById('profileInfo').classList.add('hidden');
+            document.getElementById('profilePlaceholder').classList.remove('hidden');
+            document.getElementById('dropZoneProfile').classList.remove('has-file');
+            profileData = { name: null, text: null };
+            validateInputs();
+        }
+
+        function detectKeywords() {
+            const text = document.getElementById('postText').value.toLowerCase();
+            const container = document.getElementById('detectedKeywords');
+            container.innerHTML = '<span class="text-xs text-slate-400">Detected:</span>';
+            
+            let found = [];
+            for (const [category, data] of Object.entries(TEMPLATES)) {
+                if (category === 'general') continue;
+                for (const keyword of data.keywords) {
+                    if (text.includes(keyword.toLowerCase())) {
+                        found.push(category);
+                        break;
+                    }
+                }
             }
+            
+            if (found.length > 0) {
+                container.classList.remove('hidden');
+                found.forEach(cat => {
+                    const tag = document.createElement('span');
+                    tag.className = 'keyword-tag';
+                    tag.textContent = cat;
+                    container.appendChild(tag);
+                });
+            } else {
+                container.classList.add('hidden');
+            }
+        }
 
-            const hasProfile = window.profileData.text !== null;
-            const canGenerate = isValid && hasProfile && window.aiPipeline !== null;
-
-            updateGenerateButton(canGenerate);
-            return canGenerate;
-        };
-
-        function updateGenerateButton(enabled) {
+        function validateInputs() {
+            let isValid = false;
+            
+            if (currentTab === 'text') {
+                isValid = document.getElementById('postText').value.trim().length > 15;
+            } else if (currentTab === 'screenshot') {
+                isValid = postData.type === 'screenshot';
+            }
+            
+            const profileText = document.getElementById('profileText').value.trim();
+            const hasProfile = profileData.text || profileText.length > 10;
+            const canGenerate = isValid && hasProfile;
+            
             const btn = document.getElementById('generateBtn');
             const status = document.getElementById('statusText');
-            btn.disabled = !enabled;
-
-            if (!enabled) {
+            btn.disabled = !canGenerate;
+            
+            if (!canGenerate) {
                 let msg = '';
-                if (window.aiPipeline === null) {
-                    msg = 'AI model is still loading... Please wait';
-                } else if (window.currentTab === 'text' && document.getElementById('postText').value.trim().length <= 10) {
-                    msg = 'Please enter the post text (min 10 chars)';
-                } else if (window.currentTab === 'screenshot' && window.postData.type !== 'screenshot') {
-                    msg = 'Please upload a screenshot of the post';
-                } else if (window.currentTab === 'link' && !document.getElementById('postLink').value.includes('linkedin.com')) {
-                    msg = 'Please enter a valid LinkedIn URL';
-                } else if (!window.profileData.text) {
-                    msg = 'Please upload your LinkedIn Profile PDF';
+                if (currentTab === 'text' && document.getElementById('postText').value.trim().length <= 15) {
+                    msg = 'Please enter the post text (min 15 chars)';
+                } else if (currentTab === 'screenshot' && postData.type !== 'screenshot') {
+                    msg = 'Please upload a screenshot';
+                } else if (!hasProfile) {
+                    msg = 'Please upload PDF or paste profile text';
                 }
                 status.textContent = msg;
                 status.className = 'text-xs text-slate-400 mt-3';
             } else {
-                status.textContent = 'Ready to generate! Click the button below.';
+                status.textContent = 'Ready to generate!';
                 status.className = 'text-xs text-green-600 mt-3 font-medium';
             }
+            
+            return canGenerate;
         }
 
-        // Watch inputs
-        document.getElementById('postText').addEventListener('input', () => { window.updateCharCount(); window.validateInputs(); });
-        document.getElementById('postLink').addEventListener('input', window.validateInputs);
-
-        window.generateComment = async function() {
-            if (!window.validateInputs()) return;
-            if (!window.aiPipeline) {
-                showToast('AI model is still loading. Please wait...', 'error');
-                return;
-            }
-
+        function generateComment() {
+            if (!validateInputs()) return;
+            
             const btn = document.getElementById('generateBtn');
             const btnIcon = document.getElementById('btnIcon');
             const btnText = document.getElementById('btnText');
-
+            
             btn.disabled = true;
             btnIcon.className = 'spinner';
-            btnText.textContent = 'Analyzing post & profile...';
+            btnText.textContent = 'Analyzing...';
+            
+            setTimeout(() => {
+                btnText.textContent = 'Matching templates...';
+                
+                setTimeout(() => {
+                    btnText.textContent = 'Generating...';
+                    
+                    setTimeout(() => {
+                        let postContent = '';
+                        if (currentTab === 'text') {
+                            postContent = document.getElementById('postText').value;
+                        } else {
+                            postContent = postData.text || 'LinkedIn post';
+                        }
+                        
+                        const profileText = profileData.text || document.getElementById('profileText').value;
+                        const comments = generateDynamicComments(postContent, profileText);
+                        generatedComments = comments;
+                        
+                        btn.disabled = false;
+                        btnIcon.className = 'fas fa-magic';
+                        btnText.textContent = 'Generate Comment';
+                        
+                        renderComments(comments);
+                        document.getElementById('resultsSection').classList.remove('hidden');
+                        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+                        
+                    }, 800);
+                }, 600);
+            }, 500);
+        }
 
-            try {
-                // Get post content
-                let postContent = '';
-                if (window.currentTab === 'text') {
-                    postContent = document.getElementById('postText').value;
-                } else if (window.currentTab === 'link') {
-                    postContent = document.getElementById('postLink').value;
-                } else {
-                    postContent = 'LinkedIn post screenshot: ' + window.postData.content;
+        function generateDynamicComments(postContent, profileText) {
+            const postLower = postContent.toLowerCase();
+            
+            let matchedCategory = 'general';
+            let maxMatches = 0;
+            
+            for (const [category, data] of Object.entries(TEMPLATES)) {
+                if (category === 'general') continue;
+                let matches = 0;
+                for (const keyword of data.keywords) {
+                    if (postLower.includes(keyword.toLowerCase())) matches++;
                 }
-
-                // Truncate inputs to fit model context
-                const profileText = window.profileData.text.substring(0, 500);
-                const postText = postContent.substring(0, 800);
-
-                // Generate 3 different comments with different prompts
-                const comments = [];
-
-                // Comment 1: Professional & Insightful
-                btnText.textContent = 'Generating comment 1/3...';
-                const prompt1 = `<|im_start|>system
-You are a professional LinkedIn user. Write a thoughtful, professional comment on a LinkedIn post from your own perspective. Use your background and experience to add value. Keep it 2-3 sentences. Be authentic and engaging.<|im_end|>
-<|im_start|>user
-My LinkedIn profile background: ${profileText}
-
-The LinkedIn post: ${postText}
-
-Write a professional comment from my POV:<|im_end|>
-<|im_start|>assistant
-`;
-
-                const result1 = await window.aiPipeline(prompt1, {
-                    max_new_tokens: 120,
-                    temperature: 0.7,
-                    do_sample: true,
-                    return_full_text: false
-                });
-                comments.push({
-                    style: 'Professional & Insightful',
-                    tone: 'Authority',
-                    text: cleanOutput(result1[0].generated_text),
-                    engagement: 'High'
-                });
-
-                // Comment 2: Conversational & Engaging
-                btnText.textContent = 'Generating comment 2/3...';
-                const prompt2 = `<|im_start|>system
-You are a friendly LinkedIn professional. Write a warm, conversational comment that asks a follow-up question or shares a brief personal insight. Keep it 2-3 sentences. Make it feel natural and human.<|im_end|>
-<|im_start|>user
-My background: ${profileText}
-
-The post: ${postText}
-
-Write a conversational comment:<|im_end|>
-<|im_start|>assistant
-`;
-
-                const result2 = await window.aiPipeline(prompt2, {
-                    max_new_tokens: 120,
-                    temperature: 0.8,
-                    do_sample: true,
-                    return_full_text: false
-                });
-                comments.push({
-                    style: 'Conversational & Engaging',
-                    tone: 'Friendly',
-                    text: cleanOutput(result2[0].generated_text),
-                    engagement: 'Very High'
-                });
-
-                // Comment 3: Value-Adding & Expert
-                btnText.textContent = 'Generating comment 3/3...';
-                const prompt3 = `<|im_start|>system
-You are an industry expert commenting on LinkedIn. Share a valuable insight, lesson learned, or practical tip related to the post. Keep it concise (2-3 sentences) and impactful. Show expertise without being arrogant.<|im_end|>
-<|im_start|>user
-My expertise: ${profileText}
-
-The post content: ${postText}
-
-Write an expert comment adding value:<|im_end|>
-<|im_start|>assistant
-`;
-
-                const result3 = await window.aiPipeline(prompt3, {
-                    max_new_tokens: 120,
-                    temperature: 0.6,
-                    do_sample: true,
-                    return_full_text: false
-                });
-                comments.push({
-                    style: 'Value-Adding & Expert',
-                    tone: 'Expert',
-                    text: cleanOutput(result3[0].generated_text),
-                    engagement: 'High'
-                });
-
-                window.generatedComments = comments;
-                renderComments(comments);
-                document.getElementById('resultsSection').classList.remove('hidden');
-                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
-
-            } catch (error) {
-                console.error('Generation error:', error);
-                showToast('Error generating comments. Please try again.', 'error');
-            } finally {
-                btn.disabled = false;
-                btnIcon.className = 'fas fa-magic';
-                btnText.textContent = 'Generate Comment';
+                if (matches > maxMatches) {
+                    maxMatches = matches;
+                    matchedCategory = category;
+                }
             }
-        };
+            
+            const profileInfo = extractProfileInfo(profileText);
+            const postInfo = extractPostInfo(postContent);
+            
+            const templates = TEMPLATES[matchedCategory].templates;
+            const comments = [];
+            const styles = [
+                { style: 'Professional & Insightful', tone: 'Authority' },
+                { style: 'Conversational & Engaging', tone: 'Friendly' },
+                { style: 'Value-Adding & Expert', tone: 'Expert' }
+            ];
+            
+            for (let i = 0; i < 3; i++) {
+                const template = templates[i % templates.length];
+                const filled = fillTemplate(template, profileInfo, postInfo, i);
+                comments.push({
+                    style: styles[i].style,
+                    tone: styles[i].tone,
+                    text: filled,
+                    category: matchedCategory,
+                    engagement: i === 1 ? 'Very High' : 'High'
+                });
+            }
+            
+            return comments;
+        }
 
-        function cleanOutput(text) {
-            // Remove special tokens and clean up
-            return text
-                .replace(/<\|im_start\|>/g, '')
-                .replace(/<\|im_end\|>/g, '')
-                .replace(/<\|assistant\|>/g, '')
-                .replace(/<\|user\|>/g, '')
-                .replace(/<\|system\|>/g, '')
-                .trim();
+        function extractProfileInfo(text) {
+            const info = {
+                name: 'there',
+                role: 'professional',
+                industry: 'the industry',
+                skill: 'relevant expertise'
+            };
+            
+            const nameMatch = text.match(/([A-Z][a-z]+\s+[A-Z][a-z]+)/);
+            if (nameMatch) info.name = nameMatch[1];
+            
+            const rolePatterns = [
+                /(HR|Legal|Consultant|Manager|Director|CEO|Founder|Engineer|Developer|Designer|Analyst|Specialist|Advisor|Coach)/i,
+                /\b(Consultant|Manager|Director|Lead|Head|VP)\b/i
+            ];
+            for (const pattern of rolePatterns) {
+                const match = text.match(pattern);
+                if (match) { info.role = match[1]; break; }
+            }
+            
+            const industryPatterns = [
+                /(HR|Human Resources|Legal|Tech|Technology|Finance|Marketing|Sales|Healthcare|Education|Consulting)/i,
+                /(SME|Startup|Enterprise|Corporate)/i
+            ];
+            for (const pattern of industryPatterns) {
+                const match = text.match(pattern);
+                if (match) { info.industry = match[1]; break; }
+            }
+            
+            const skillPatterns = [
+                /(framework|system|strategy|process|management|development|analysis|design|consulting|building|scaling)/i,
+                /(ISLA|Agile|Scrum|Lean|Six Sigma|ISO|GDPR)/i
+            ];
+            for (const pattern of skillPatterns) {
+                const match = text.match(pattern);
+                if (match) { info.skill = match[1]; break; }
+            }
+            
+            return info;
+        }
+
+        function extractPostInfo(text) {
+            const info = {
+                topic: 'this topic',
+                company: 'the company',
+                role: 'this role'
+            };
+            
+            const words = text.split(/\s+/).filter(w => w.length > 4);
+            const commonWords = ['about', 'would', 'could', 'should', 'their', 'there', 'where', 'when', 'what', 'this', 'that', 'with', 'from', 'have', 'been'];
+            const topics = words.filter(w => !commonWords.includes(w.toLowerCase())).slice(0, 3);
+            if (topics.length > 0) info.topic = topics[0];
+            
+            const companyMatch = text.match(/\b([A-Z][a-zA-Z&]+(?:\s+[A-Z][a-zA-Z&]+)*)\b/);
+            if (companyMatch && companyMatch[1].length > 2) info.company = companyMatch[1];
+            
+            return info;
+        }
+
+        function fillTemplate(template, profileInfo, postInfo, variant) {
+            let result = template;
+            const allInfo = { ...profileInfo, ...postInfo };
+            
+            for (const [key, value] of Object.entries(allInfo)) {
+                const regex = new RegExp('{' + key + '}', 'g');
+                result = result.replace(regex, value);
+            }
+            
+            if (variant === 1) {
+                result = result.replace(/thank you/gi, 'Thanks');
+            } else if (variant === 2) {
+                result = result.replace(/great/gi, 'excellent');
+            }
+            
+            return result;
         }
 
         function renderComments(comments) {
             const container = document.getElementById('commentsContainer');
             container.innerHTML = '';
-
+            
             comments.forEach((comment, index) => {
                 const card = document.createElement('div');
                 card.className = 'comment-card rounded-xl p-6 fade-in';
-                card.style.animationDelay = index * 0.15 + 's';
-
-                card.innerHTML = `
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-semibold text-linkedin-blue bg-linkedin-light px-2 py-1 rounded-md">${comment.style}</span>
-                            <span class="text-xs text-slate-400">• ${comment.tone}</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <i class="fas fa-chart-line text-green-500 text-xs"></i>
-                            <span class="text-xs text-green-600 font-medium">${comment.engagement} engagement</span>
-                        </div>
-                    </div>
-                    <p class="text-slate-700 leading-relaxed mb-4 text-sm">${comment.text}</p>
-                    <div class="flex items-center justify-between">
-                        <div class="flex gap-2">
-                            <span class="text-xs text-slate-400"><i class="fas fa-robot mr-1"></i>AI Generated</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="copyComment(${index})" class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-all">
-                                <i class="fas fa-copy"></i>Copy
-                            </button>
-                            <button onclick="useComment(${index})" class="flex items-center gap-1.5 px-3 py-1.5 bg-linkedin-blue text-white rounded-lg text-xs font-medium hover:bg-linkedin-dark transition-all">
-                                <i class="fas fa-check"></i>Use This
-                            </button>
-                        </div>
-                    </div>
-                `;
+                card.style.animationDelay = (index * 0.15) + 's';
+                
+                card.innerHTML = '<div class="flex items-center justify-between mb-3">' +
+                    '<div class="flex items-center gap-2">' +
+                        '<span class="text-xs font-semibold text-linkedin-blue bg-linkedin-light px-2 py-1 rounded-md">' + comment.style + '</span>' +
+                        '<span class="text-xs text-slate-400">&bull; ' + comment.tone + '</span>' +
+                        '<span class="keyword-tag">' + comment.category + '</span>' +
+                    '</div>' +
+                    '<div class="flex items-center gap-1">' +
+                        '<i class="fas fa-chart-line text-green-500 text-xs"></i>' +
+                        '<span class="text-xs text-green-600 font-medium">' + comment.engagement + ' engagement</span>' +
+                    '</div>' +
+                '</div>' +
+                '<p class="text-slate-700 leading-relaxed mb-4 text-sm">' + comment.text + '</p>' +
+                '<div class="flex items-center justify-between">' +
+                    '<div class="flex gap-2">' +
+                        '<span class="text-xs text-slate-400"><i class="fas fa-brain mr-1"></i>Dynamic Template</span>' +
+                    '</div>' +
+                    '<div class="flex gap-2">' +
+                        '<button onclick="copyComment(' + index + ')" class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-all">' +
+                            '<i class="fas fa-copy"></i>Copy' +
+                        '</button>' +
+                        '<button onclick="useComment(' + index + ')" class="flex items-center gap-1.5 px-3 py-1.5 bg-linkedin-blue text-white rounded-lg text-xs font-medium hover:bg-linkedin-dark transition-all">' +
+                            '<i class="fas fa-check"></i>Use This' +
+                        '</button>' +
+                    '</div>' +
+                '</div>';
+                
                 container.appendChild(card);
             });
         }
 
-        window.copyComment = function(index) {
-            const text = window.generatedComments[index].text;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('Comment copied to clipboard!', 'success');
-            });
-        };
+        function copyComment(index) {
+            const text = generatedComments[index].text;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => showToast('Copied!', 'success'));
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('Copied!', 'success');
+            }
+        }
 
-        window.useComment = function(index) {
-            window.copyComment(index);
-            showToast('Copied! Ready to paste on LinkedIn.', 'success');
-        };
+        function useComment(index) {
+            copyComment(index);
+            showToast('Ready to paste on LinkedIn!', 'success');
+        }
 
-        window.regenerateComment = function() {
-            window.generateComment();
-        };
+        function regenerateComment() {
+            generateComment();
+        }
 
-        window.showToast = function(message, type) {
+        function updateCharCount() {
+            const count = document.getElementById('postText').value.length;
+            document.getElementById('charCount').textContent = count + ' characters';
+        }
+
+        function clearPost() {
+            document.getElementById('postText').value = '';
+            updateCharCount();
+            postData = { type: null, content: null, text: '' };
+            document.getElementById('detectedKeywords').classList.add('hidden');
+            validateInputs();
+        }
+
+        function showToast(message, type) {
             const toast = document.createElement('div');
-            const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-slate-800' };
-            toast.className = `fixed bottom-6 right-6 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg text-sm font-medium fade-in z-50`;
-            toast.innerHTML = `<div class="flex items-center gap-2"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>${message}</div>`;
+            const colors = { success: 'bg-green-500', error: 'bg-red-500' };
+            toast.className = 'fixed bottom-6 right-6 ' + (colors[type] || 'bg-slate-800') + ' text-white px-6 py-3 rounded-lg shadow-lg text-sm font-medium fade-in z-50';
+            toast.innerHTML = '<div class="flex items-center gap-2"><i class="fas ' + (type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle') + '"></i>' + message + '</div>';
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
-        };
-
-        // Initialize
-        window.updateCharCount();
+        }
     </script>
 </body>
 </html>
